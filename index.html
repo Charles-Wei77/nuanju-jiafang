@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>暖居家纺 · 线上选购</title>
+<script src="products.js"></script>
+<style>
+:root{
+  --main:#a05c3b; --main-dark:#7d4128; --bg:#faf6f1; --card:#fff;
+  --txt:#3a3026; --sub:#9a8c7d; --line:#efe7dc; --red:#c0392b; --gold:#b8860b;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--txt);max-width:480px;margin:0 auto;padding-bottom:64px;min-height:100vh}
+.page{display:none;animation:fade .2s}
+.page.on{display:block}
+@keyframes fade{from{opacity:.4}to{opacity:1}}
+/* 顶栏 */
+.topbar{position:sticky;top:0;z-index:10;background:var(--bg);padding:12px 16px 8px;display:flex;align-items:center;gap:10px}
+.brand{font-size:20px;font-weight:700;color:var(--main-dark);letter-spacing:1px}
+.brand small{font-size:11px;color:var(--sub);font-weight:400;margin-left:6px}
+.back{font-size:22px;color:var(--txt);background:none;border:none;padding:0 6px;cursor:pointer}
+.search{flex:1;background:#fff;border:1px solid var(--line);border-radius:18px;padding:8px 14px;font-size:13px;color:var(--sub);cursor:pointer}
+/* 场景导购 */
+.sec-title{font-size:16px;font-weight:700;margin:18px 16px 10px;display:flex;justify-content:space-between;align-items:baseline}
+.sec-title span{font-size:12px;color:var(--sub);font-weight:400}
+.scene-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:0 16px}
+.scene{background:var(--card);border-radius:14px;padding:12px 4px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.04);cursor:pointer}
+.scene .ic{font-size:24px}
+.scene .nm{font-size:12px;margin-top:4px;font-weight:600}
+.banner{margin:10px 16px;border-radius:16px;padding:22px 18px;background:linear-gradient(120deg,#a05c3b,#c8875f);color:#fff}
+.banner h2{font-size:18px;margin-bottom:4px}
+.banner p{font-size:12px;opacity:.85}
+.banner .btn-mini{display:inline-block;margin-top:10px;background:#fff;color:var(--main-dark);border-radius:14px;padding:5px 14px;font-size:12px;font-weight:600}
+/* 商品卡 */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 16px}
+.pcard{background:var(--card);border-radius:14px;overflow:hidden;box-shadow:0 1px 5px rgba(0,0,0,.05);cursor:pointer}
+.pimg{height:130px;display:flex;align-items:center;justify-content:center;font-size:42px;position:relative}
+.ptag{position:absolute;top:8px;left:8px;font-size:10px;color:#fff;border-radius:8px;padding:2px 7px}
+.tag-hot{background:var(--red)} .tag-new{background:var(--gold)} .tag-classic{background:#7a8b6f}
+.pinfo{padding:8px 10px 10px}
+.pname{font-size:13px;font-weight:600;line-height:1.35;height:35px;overflow:hidden}
+.pmeta{font-size:10px;color:var(--sub);margin-top:3px}
+.pprice{margin-top:5px;display:flex;align-items:baseline;gap:6px}
+.pprice b{color:var(--red);font-size:16px}
+.pprice s{color:var(--sub);font-size:11px}
+.mprice{font-size:10px;color:var(--gold);background:#faf3e0;border-radius:6px;padding:1px 5px}
+/* 筛选 */
+.chips{display:flex;gap:8px;overflow-x:auto;padding:8px 16px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;background:#fff;border:1px solid var(--line);border-radius:16px;padding:6px 14px;font-size:13px;color:var(--txt);cursor:pointer}
+.chip.on{background:var(--main);color:#fff;border-color:var(--main)}
+.fbar{display:flex;gap:8px;padding:4px 16px 8px;flex-wrap:wrap}
+.fsel{font-size:12px;border:1px solid var(--line);background:#fff;border-radius:10px;padding:5px 8px;color:var(--txt)}
+/* 详情页 */
+.dimg{height:230px;display:flex;align-items:center;justify-content:center;font-size:80px}
+.dbody{background:var(--card);border-radius:20px 20px 0 0;margin-top:-18px;position:relative;padding:18px 16px 24px}
+.dprice{display:flex;align-items:baseline;gap:8px}
+.dprice b{color:var(--red);font-size:24px}
+.dname{font-size:17px;font-weight:700;margin:6px 0 2px}
+.dmat{font-size:12px;color:var(--sub)}
+.dsec{margin-top:16px}
+.dsec h4{font-size:14px;margin-bottom:8px;color:var(--main-dark)}
+.opt{display:inline-block;border:1px solid var(--line);border-radius:10px;padding:7px 12px;font-size:13px;margin:0 8px 8px 0;cursor:pointer;background:#fff}
+.opt.on{border-color:var(--main);color:var(--main);background:#fdf6f0;font-weight:600}
+.opt .op{display:block;font-size:11px;color:var(--red)}
+.point{font-size:13px;line-height:1.7;padding-left:18px;position:relative;margin-bottom:4px}
+.point::before{content:"✓";position:absolute;left:0;color:var(--main);font-weight:700}
+.notebox{background:#faf6ee;border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.7;color:#6b5d4d}
+.faq-q{font-size:13px;font-weight:600;margin-top:10px}
+.faq-q::before{content:"问:";color:var(--main)}
+.faq-a{font-size:12.5px;color:#6b5d4d;line-height:1.6;margin-top:2px}
+.faq-a::before{content:"答:";color:var(--sub)}
+.dbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-top:1px solid var(--line);display:flex;gap:8px;padding:10px 14px;z-index:20}
+.dbar .icbtn{flex:none;width:50px;text-align:center;font-size:11px;color:var(--sub);background:none;border:none;cursor:pointer}
+.dbar .icbtn i{display:block;font-size:20px;font-style:normal}
+.btn{flex:1;border:none;border-radius:22px;padding:12px 0;font-size:15px;font-weight:600;cursor:pointer}
+.btn-ghost{background:#fdf0e4;color:var(--main-dark)}
+.btn-main{background:linear-gradient(100deg,var(--main),#c8875f);color:#fff}
+/* 购物车/表单 */
+.citem{display:flex;gap:10px;background:#fff;border-radius:14px;padding:12px;margin:0 16px 10px;align-items:center}
+.cimg{width:64px;height:64px;border-radius:10px;flex:none;display:flex;align-items:center;justify-content:center;font-size:28px}
+.cinfo{flex:1;min-width:0}
+.cname{font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cspec{font-size:11px;color:var(--sub);margin:3px 0}
+.crow{display:flex;justify-content:space-between;align-items:center}
+.cprice{color:var(--red);font-weight:700;font-size:15px}
+.qty{display:flex;align-items:center;gap:8px}
+.qty button{width:24px;height:24px;border-radius:50%;border:1px solid var(--line);background:#fff;font-size:14px;cursor:pointer}
+.empty{text-align:center;color:var(--sub);padding:60px 0;font-size:14px}
+.empty .e{font-size:46px;display:block;margin-bottom:10px}
+.form{padding:0 16px}
+.form label{font-size:13px;font-weight:600;display:block;margin:14px 0 6px}
+.form input,.form textarea,.form select{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:14px;background:#fff;font-family:inherit}
+.form textarea{height:80px;resize:none}
+.payopt{display:flex;gap:10px;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px;cursor:pointer;align-items:center}
+.payopt.on{border-color:var(--main);background:#fdf6f0}
+.payopt .pi{font-size:22px}
+.payopt .pt{font-size:14px;font-weight:600}
+.payopt .pd{font-size:11px;color:var(--sub);margin-top:2px}
+.totalbar{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;font-size:14px}
+.totalbar b{color:var(--red);font-size:20px}
+/* 订单 */
+.ocard{background:#fff;border-radius:14px;margin:0 16px 10px;padding:14px}
+.ohead{display:flex;justify-content:space-between;font-size:12px;color:var(--sub);margin-bottom:8px}
+.ostatus{color:var(--main);font-weight:600}
+.oitem{font-size:13px;line-height:1.6}
+.ofoot{display:flex;justify-content:space-between;margin-top:8px;font-size:13px;border-top:1px dashed var(--line);padding-top:8px}
+/* 导航 */
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-top:1px solid var(--line);display:flex;z-index:15}
+.nav button{flex:1;background:none;border:none;padding:7px 0 9px;font-size:10px;color:var(--sub);cursor:pointer;position:relative}
+.nav button i{display:block;font-size:20px;font-style:normal}
+.nav button.on{color:var(--main)}
+.badge{position:absolute;top:2px;right:26%;background:var(--red);color:#fff;font-size:9px;border-radius:8px;padding:0 5px;min-width:15px}
+/* 弹层 */
+.toast{position:fixed;top:45%;left:50%;transform:translate(-50%,-50%);background:rgba(40,30,20,.85);color:#fff;font-size:13px;border-radius:10px;padding:10px 18px;z-index:99;display:none;text-align:center;line-height:1.6}
+.guide-row{display:flex;background:#fff;border-radius:12px;margin:0 16px 8px;padding:12px;font-size:12.5px;gap:10px}
+.guide-row b{flex:none;width:108px;color:var(--main-dark)}
+.guide-row span{color:#6b5d4d;line-height:1.5}
+.mine-menu{background:#fff;border-radius:14px;margin:10px 16px}
+.mine-menu div{display:flex;justify-content:space-between;padding:14px;font-size:14px;border-bottom:1px solid var(--line);cursor:pointer}
+.mine-menu div:last-child{border:none}
+.mine-menu div::after{content:"›";color:var(--sub)}
+.wx-tip{margin:10px 16px;background:#e8f5e9;border-radius:12px;padding:12px;font-size:12.5px;color:#33691e;line-height:1.7}
+</style>
+</head>
+<body>
+
+<!-- ========== 首页 ========== -->
+<div class="page on" id="pg-home">
+  <div class="topbar">
+    <div class="brand">暖居家纺<small>30年老店 · 工厂直供</small></div>
+  </div>
+  <div class="topbar" style="padding-top:0">
+    <div class="search" onclick="goCat('all')">🔍 搜索:四件套 / 被芯 / 婚庆…</div>
+  </div>
+  <div class="banner" onclick="goScene('新婚')">
+    <h2>婚庆季 · 一生一次要够隆重</h2>
+    <p>龙凤刺绣十件套 · 压床喜被可绣字定制</p>
+    <span class="btn-mini">去看婚庆系列 ›</span>
+  </div>
+  <div class="sec-title">按场景选 <span>不知道买什么,从这里进</span></div>
+  <div class="scene-grid" id="sceneGrid"></div>
+  <div class="sec-title">爆款推荐 <span onclick="goCat('all')">查看全部 ›</span></div>
+  <div class="grid" id="hotGrid"></div>
+</div>
+
+<!-- ========== 分类/列表页 ========== -->
+<div class="page" id="pg-cat">
+  <div class="topbar">
+    <button class="back" onclick="show('pg-home')">‹</button>
+    <div class="brand" style="font-size:16px" id="catTitle">全部商品</div>
+  </div>
+  <div class="chips" id="catChips"></div>
+  <div class="fbar">
+    <select class="fsel" id="fSize" onchange="renderList()"><option value="">床型/尺寸</option><option>0.9m</option><option>1.2m</option><option>1.5m</option><option>1.8m</option><option>2.0m</option></select>
+    <select class="fsel" id="fSeason" onchange="renderList()"><option value="">季节</option><option>春夏</option><option>秋冬</option><option>四季</option></select>
+    <select class="fsel" id="fPrice" onchange="renderList()"><option value="">价格</option><option value="0-200">200以内</option><option value="200-500">200-500</option><option value="500-1000">500-1000</option><option value="1000-9999">1000以上</option></select>
+    <select class="fsel" id="fScene" onchange="renderList()"><option value="">场景</option></select>
+  </div>
+  <div class="grid" id="listGrid"></div>
+</div>
+
+<!-- ========== 详情页 ========== -->
+<div class="page" id="pg-detail"></div>
+
+<!-- ========== 购物车 ========== -->
+<div class="page" id="pg-cart">
+  <div class="topbar"><div class="brand" style="font-size:17px">购物车</div></div>
+  <div id="cartBody"></div>
+</div>
+
+<!-- ========== 结算/留单 ========== -->
+<div class="page" id="pg-checkout">
+  <div class="topbar">
+    <button class="back" onclick="show('pg-cart')">‹</button>
+    <div class="brand" style="font-size:17px" id="ckTitle">提交订单</div>
+  </div>
+  <div id="ckItems"></div>
+  <div class="form">
+    <label>收货人 / 称呼 *</label>
+    <input id="ckName" placeholder="怎么称呼您">
+    <label>手机号 *</label>
+    <input id="ckPhone" type="tel" placeholder="方便联系确认订单">
+    <label>微信号(选填,售前售后沟通更方便)</label>
+    <input id="ckWx" placeholder="微信号">
+    <label>收货地址(咨询留单可不填)</label>
+    <input id="ckAddr" placeholder="省市区 + 详细地址">
+    <label>备注(尺寸定制 / 绣字 / 送礼包装等)</label>
+    <textarea id="ckNote" placeholder="例:婚期5月20日,喜被绣「张李联姻」;或:寄到学校,9月1日前到"></textarea>
+    <label>选择方式 *</label>
+    <div class="payopt on" data-pay="consult" onclick="pickPay(this)">
+      <div class="pi">💬</div><div><div class="pt">留单咨询(推荐)</div><div class="pd">提交需求,店主微信/电话联系您确认细节后成交</div></div>
+    </div>
+    <div class="payopt" data-pay="transfer" onclick="pickPay(this)">
+      <div class="pi">🤝</div><div><div class="pt">下单 · 微信转账成交</div><div class="pd">确认订单后店主联系您,微信转账/到店付款</div></div>
+    </div>
+    <div class="payopt" data-pay="wxpay" onclick="pickPay(this)">
+      <div class="pi">🟢</div><div><div class="pt">微信支付(小程序版开通)</div><div class="pd">原型暂为模拟,正式小程序上线后接入微信支付</div></div>
+    </div>
+  </div>
+  <div class="totalbar"><span>合计</span><b id="ckTotal">¥0</b></div>
+  <div style="padding:0 16px 30px"><button class="btn btn-main" style="width:100%" onclick="submitOrder()">提交</button></div>
+</div>
+
+<!-- ========== 我的 ========== -->
+<div class="page" id="pg-mine">
+  <div class="topbar"><div class="brand" style="font-size:17px">我的</div></div>
+  <div class="wx-tip">💚 老客服务:加店主微信,上新提醒 + 会员价 + 旧客换新折扣。<b>微信号:nuanju-jiafang(示例)</b></div>
+  <div class="mine-menu">
+    <div onclick="renderOrders();show('pg-orders')">我的订单 / 留单记录</div>
+    <div onclick="renderFavs();show('pg-favs')">我的收藏</div>
+    <div onclick="show('pg-guide')">买多大?买几斤?(选购指南)</div>
+    <div onclick="toast('原型演示:正式版可一键拨号 13800000000')">联系店主</div>
+  </div>
+  <div class="sec-title">最近浏览</div>
+  <div class="grid" id="histGrid"></div>
+</div>
+
+<!-- 订单列表 -->
+<div class="page" id="pg-orders">
+  <div class="topbar"><button class="back" onclick="show('pg-mine')">‹</button><div class="brand" style="font-size:17px">订单 / 留单</div></div>
+  <div id="orderBody"></div>
+</div>
+
+<!-- 收藏 -->
+<div class="page" id="pg-favs">
+  <div class="topbar"><button class="back" onclick="show('pg-mine')">‹</button><div class="brand" style="font-size:17px">我的收藏</div></div>
+  <div class="grid" id="favGrid"></div>
+</div>
+
+<!-- 选购指南 -->
+<div class="page" id="pg-guide">
+  <div class="topbar"><button class="back" onclick="show('pg-mine')">‹</button><div class="brand" style="font-size:17px">选购指南</div></div>
+  <div class="sec-title">买多大 · 按床型选</div>
+  <div id="sizeGuide"></div>
+  <div class="sec-title">被子买几斤 · 按卧室温度选</div>
+  <div id="weightGuide"></div>
+  <div class="notebox" style="margin:10px 16px">仍拿不准?直接留单写上「床的尺寸 + 城市 + 有无暖气」,店主帮您配。</div>
+</div>
+
+<!-- 底部导航 -->
+<div class="nav">
+  <button class="on" data-pg="pg-home" onclick="nav(this)"><i>🏠</i>首页</button>
+  <button data-pg="pg-cat" onclick="nav(this);goCat(curCat||'all')"><i>🗂️</i>分类</button>
+  <button data-pg="pg-cart" onclick="nav(this);renderCart()"><i>🛒</i>购物车<span class="badge" id="cartBadge" style="display:none">0</span></button>
+  <button data-pg="pg-mine" onclick="nav(this);renderHist()"><i>👤</i>我的</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== 本地存储(带降级,防止某些环境禁用) =====
+const store = {
+  get(k,d){ try{ return JSON.parse(localStorage.getItem(k)) ?? d }catch(e){ return this._m?.[k] ?? d } },
+  set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)) }catch(e){ (this._m=this._m||{})[k]=v } }
+};
+let cart = store.get("cart",[]);
+let favs = store.get("favs",[]);
+let hist = store.get("hist",[]);
+let curCat = "all", curScene = "", curProduct = null, selSize = 0, selColor = 0, payMode = "consult", ckMode = "cart";
+
+const $ = id => document.getElementById(id);
+const fmt = n => "¥" + n;
+
+function show(id){ document.querySelectorAll(".page").forEach(p=>p.classList.remove("on")); $(id).classList.add("on"); window.scrollTo(0,0); }
+function nav(btn){ document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("on")); btn.classList.add("on"); show(btn.dataset.pg); }
+function toast(msg){ const t=$("toast"); t.innerHTML=msg; t.style.display="block"; clearTimeout(t._t); t._t=setTimeout(()=>t.style.display="none",1800); }
+
+// ===== 商品卡 =====
+function card(p){
+  const tagCls = {hot:"tag-hot",new:"tag-new",classic:"tag-classic"}[p.tag];
+  const tagTxt = {hot:"爆款",new:"新品",classic:"经典"}[p.tag];
+  const low = p.stock==="low" ? `<span style="color:var(--red)"> · 库存紧张</span>` : "";
+  return `<div class="pcard" onclick="openDetail('${p.id}')">
+    <div class="pimg" style="background:linear-gradient(135deg,${p.img[0]},${p.img[1]})"><span class="ptag ${tagCls}">${tagTxt}</span>${p.img[2]}</div>
+    <div class="pinfo">
+      <div class="pname">${p.name}</div>
+      <div class="pmeta">${CATS[p.cat]} · ${p.season}${low}</div>
+      <div class="pprice"><b>${fmt(p.sizes[0].p)}</b><span class="mprice">会员${fmt(p.sizes[0].mp)}</span></div>
+    </div></div>`;
+}
+
+// ===== 首页 =====
+$("sceneGrid").innerHTML = SCENES.map(s=>`<div class="scene" onclick="goScene('${s.key}')"><div class="ic">${s.icon}</div><div class="nm">${s.key}</div></div>`).join("");
+$("hotGrid").innerHTML = PRODUCTS.filter(p=>p.tag==="hot").slice(0,6).map(card).join("");
+$("fScene").innerHTML += SCENES.map(s=>`<option>${s.key}</option>`).join("");
+
+// ===== 分类列表 =====
+function goCat(cat){ curCat=cat; curScene=""; $("fScene").value="";
+  document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("on",b.dataset.pg==="pg-cat"));
+  renderChips(); renderList(); show("pg-cat"); }
+function goScene(scene){ curCat="all"; curScene=scene;
+  renderChips(); $("fScene").value=scene; renderList(); show("pg-cat"); }
+function renderChips(){
+  const cats=[["all","全部"],...Object.entries(CATS)];
+  $("catChips").innerHTML = cats.map(([k,v])=>`<div class="chip ${curCat===k?'on':''}" onclick="goCat('${k}')">${v}</div>`).join("");
+  $("catTitle").textContent = curCat==="all" ? (curScene?curScene+" · 场景甄选":"全部商品") : CATS[curCat];
+}
+function renderList(){
+  const size=$("fSize").value, season=$("fSeason").value, price=$("fPrice").value, scene=$("fScene").value;
+  let list = PRODUCTS.filter(p=>{
+    if(curCat!=="all" && p.cat!==curCat) return false;
+    if(scene && !p.scenes.includes(scene)) return false;
+    if(season && p.season!==season && p.season!=="四季") return false;
+    if(size && !p.sizes.some(s=>s.s.includes(size))) return false;
+    if(price){ const[a,b]=price.split("-").map(Number); if(!p.sizes.some(s=>s.p>=a&&s.p<=b)) return false; }
+    return true;
+  });
+  $("listGrid").innerHTML = list.length ? list.map(card).join("") : `<div class="empty" style="grid-column:1/3"><span class="e">🔍</span>没有符合条件的商品<br>试试放宽筛选,或留单告诉我们您要什么</div>`;
+}
+
+// ===== 详情 =====
+function openDetail(id){
+  const p = PRODUCTS.find(x=>x.id===id); if(!p) return;
+  curProduct=p; selSize=0; selColor=0;
+  hist = [id, ...hist.filter(h=>h!==id)].slice(0,8); store.set("hist",hist);
+  renderDetail(); show("pg-detail");
+}
+function renderDetail(){
+  const p=curProduct, sz=p.sizes[selSize], isFav=favs.includes(p.id);
+  $("pg-detail").innerHTML = `
+  <div class="topbar" style="position:absolute;background:none"><button class="back" style="background:rgba(255,255,255,.8);border-radius:50%;width:34px;height:34px" onclick="show('pg-cat')">‹</button></div>
+  <div class="dimg" style="background:linear-gradient(135deg,${p.img[0]},${p.img[1]})">${p.img[2]}</div>
+  <div class="dbody">
+    <div class="dprice"><b>${fmt(sz.p)}</b><span class="mprice">会员价 ${fmt(sz.mp)}</span>${p.stock==="low"?'<span style="font-size:12px;color:var(--red)">仅剩少量</span>':''}</div>
+    <div class="dname">${p.name}</div>
+    <div class="dmat">${p.material} · ${p.season} · ${p.scenes.join(" / ")}</div>
+    <div class="dsec"><h4>选择规格</h4>${p.sizes.map((s,i)=>`<span class="opt ${i===selSize?'on':''}" onclick="selSize=${i};renderDetail()">${s.s}<span class="op">${fmt(s.p)}</span></span>`).join("")}</div>
+    <div class="dsec"><h4>颜色 / 花型</h4>${p.colors.map((c,i)=>`<span class="opt ${i===selColor?'on':''}" onclick="selColor=${i};renderDetail()">${c}</span>`).join("")}</div>
+    ${p.weight?`<div class="dsec"><h4>厚度 / 保暖参考</h4><div class="notebox">${p.weight}</div></div>`:""}
+    <div class="dsec"><h4>为什么值得买</h4>${p.points.map(x=>`<div class="point">${x}</div>`).join("")}</div>
+    <div class="dsec"><h4>适合谁</h4><div class="notebox">${p.fitFor}</div></div>
+    <div class="dsec"><h4>大家都在问</h4>${p.faq.map(([q,a])=>`<div class="faq-q">${q}</div><div class="faq-a">${a}</div>`).join("")}</div>
+    <div class="dsec"><h4>洗护说明</h4><div class="notebox">${p.care}</div></div>
+    <div class="dsec"><h4>售后承诺</h4><div class="notebox">${p.policy}</div></div>
+    <div style="height:70px"></div>
+  </div>
+  <div class="dbar">
+    <button class="icbtn" onclick="toggleFav()"><i>${isFav?"❤️":"🤍"}</i>收藏</button>
+    <button class="icbtn" onclick="nav(document.querySelector('[data-pg=pg-cart]'));renderCart()"><i>🛒</i>购物车</button>
+    <button class="btn btn-ghost" onclick="goConsult()">留单咨询</button>
+    <button class="btn btn-main" onclick="addCart()">加入购物车</button>
+  </div>`;
+}
+function toggleFav(){ const id=curProduct.id;
+  favs = favs.includes(id) ? favs.filter(f=>f!==id) : [...favs,id];
+  store.set("favs",favs); renderDetail(); toast(favs.includes(id)?"已收藏,上新降价会提醒您":"已取消收藏"); }
+function addCart(){
+  const p=curProduct, key=p.id+"|"+selSize+"|"+selColor;
+  const ex=cart.find(c=>c.key===key);
+  if(ex) ex.qty++; else cart.push({key,id:p.id,size:selSize,color:selColor,qty:1});
+  store.set("cart",cart); updateBadge(); toast("已加入购物车");
+}
+function updateBadge(){ const n=cart.reduce((s,c)=>s+c.qty,0); const b=$("cartBadge"); b.style.display=n?"block":"none"; b.textContent=n; }
+
+// ===== 购物车 =====
+function renderCart(){
+  if(!cart.length){ $("cartBody").innerHTML=`<div class="empty"><span class="e">🛒</span>购物车还是空的<br><br><button class="btn btn-main" style="padding:10px 30px" onclick="nav(document.querySelector('[data-pg=pg-cat]'));goCat('all')">去逛逛</button></div>`; return; }
+  let total=0;
+  $("cartBody").innerHTML = cart.map((c,i)=>{
+    const p=PRODUCTS.find(x=>x.id===c.id), sz=p.sizes[c.size];
+    total += sz.p*c.qty;
+    return `<div class="citem">
+      <div class="cimg" style="background:linear-gradient(135deg,${p.img[0]},${p.img[1]})">${p.img[2]}</div>
+      <div class="cinfo">
+        <div class="cname">${p.name}</div>
+        <div class="cspec">${sz.s} · ${p.colors[c.color]}</div>
+        <div class="crow"><span class="cprice">${fmt(sz.p)}</span>
+          <span class="qty"><button onclick="chgQty(${i},-1)">−</button>${c.qty}<button onclick="chgQty(${i},1)">+</button></span></div>
+      </div></div>`;
+  }).join("") + `<div class="totalbar"><span>共${cart.reduce((s,c)=>s+c.qty,0)}件</span><b>${fmt(total)}</b></div>
+  <div style="padding:0 16px 20px;display:flex;gap:10px">
+    <button class="btn btn-ghost" onclick="goCheckout('consult')">整单留言咨询</button>
+    <button class="btn btn-main" onclick="goCheckout('cart')">去下单</button></div>`;
+}
+function chgQty(i,d){ cart[i].qty+=d; if(cart[i].qty<=0) cart.splice(i,1); store.set("cart",cart); updateBadge(); renderCart(); }
+
+// ===== 结算 / 留单 =====
+function goConsult(){ ckMode="single"; renderCheckout(); show("pg-checkout"); }
+function goCheckout(mode){ if(!cart.length) return toast("购物车是空的"); ckMode=mode; renderCheckout(); show("pg-checkout"); }
+function ckList(){
+  if(ckMode==="single"){ const p=curProduct,sz=p.sizes[selSize]; return [{p,sz,color:p.colors[selColor],qty:1}]; }
+  return cart.map(c=>{ const p=PRODUCTS.find(x=>x.id===c.id); return {p,sz:p.sizes[c.size],color:p.colors[c.color],qty:c.qty}; });
+}
+function renderCheckout(){
+  const items=ckList(); let total=0;
+  $("ckTitle").textContent = ckMode==="single"||ckMode==="consult" ? "留单咨询" : "提交订单";
+  $("ckItems").innerHTML = items.map(it=>{ total+=it.sz.p*it.qty;
+    return `<div class="citem"><div class="cimg" style="background:linear-gradient(135deg,${it.p.img[0]},${it.p.img[1]})">${it.p.img[2]}</div>
+    <div class="cinfo"><div class="cname">${it.p.name}</div><div class="cspec">${it.sz.s} · ${it.color} × ${it.qty}</div>
+    <div class="cprice">${fmt(it.sz.p*it.qty)}</div></div></div>`; }).join("");
+  $("ckTotal").textContent = fmt(total);
+  payMode = ckMode==="cart" ? "transfer" : "consult";
+  document.querySelectorAll(".payopt").forEach(el=>el.classList.toggle("on",el.dataset.pay===payMode));
+}
+function pickPay(el){ payMode=el.dataset.pay; document.querySelectorAll(".payopt").forEach(x=>x.classList.remove("on")); el.classList.add("on"); }
+function submitOrder(){
+  const name=$("ckName").value.trim(), phone=$("ckPhone").value.trim();
+  if(!name) return toast("请填写称呼");
+  if(!/^1\d{10}$/.test(phone)) return toast("请填写11位手机号");
+  if(payMode!=="consult" && !$("ckAddr").value.trim()) return toast("下单请填写收货地址");
+  const items=ckList(); const total=items.reduce((s,it)=>s+it.sz.p*it.qty,0);
+  const orders=store.get("orders",[]);
+  const order={ no:"NJ"+Date.now().toString().slice(-8), time:new Date().toLocaleString("zh-CN"),
+    type:payMode, status: payMode==="consult"?"待店主联系": payMode==="wxpay"?"已支付(模拟)":"待确认·转账成交",
+    name,phone,wx:$("ckWx").value.trim(),addr:$("ckAddr").value.trim(),note:$("ckNote").value.trim(),
+    items:items.map(it=>({id:it.p.id,name:it.p.name,spec:it.sz.s,color:it.color,qty:it.qty,price:it.sz.p})), total };
+  orders.unshift(order); store.set("orders",orders);
+  if(ckMode!=="single"){ cart=[]; store.set("cart",cart); updateBadge(); }
+  ["ckName","ckPhone","ckWx","ckAddr","ckNote"].forEach(id=>$(id).value="");
+  if(payMode==="wxpay") toast("✅ 模拟支付成功<br>订单号 "+order.no+"<br>正式版将拉起微信支付");
+  else toast("✅ 已提交,店主会尽快联系您<br>订单号 "+order.no);
+  setTimeout(()=>{ renderOrders(); show("pg-orders"); },1500);
+}
+
+// ===== 订单 / 收藏 / 浏览 =====
+function renderOrders(){
+  const orders=store.get("orders",[]);
+  $("orderBody").innerHTML = orders.length ? orders.map(o=>`<div class="ocard">
+    <div class="ohead"><span>${o.no} · ${o.time}</span><span class="ostatus">${o.status}</span></div>
+    ${o.items.map(it=>`<div class="oitem">${it.name}<span style="color:var(--sub)"> · ${it.spec} · ${it.color} ×${it.qty}</span></div>`).join("")}
+    ${o.note?`<div class="oitem" style="color:var(--gold)">备注:${o.note}</div>`:""}
+    <div class="ofoot"><span style="color:var(--sub)">${{consult:"留单咨询",transfer:"微信转账成交",wxpay:"微信支付"}[o.type]}</span><span>合计 <b style="color:var(--red)">${fmt(o.total)}</b></span></div>
+  </div>`).join("") : `<div class="empty"><span class="e">📋</span>还没有订单或留单记录</div>`;
+}
+function renderFavs(){
+  const list=PRODUCTS.filter(p=>favs.includes(p.id));
+  $("favGrid").innerHTML = list.length ? list.map(card).join("") : `<div class="empty" style="grid-column:1/3"><span class="e">🤍</span>还没有收藏的商品</div>`;
+}
+function renderHist(){
+  const list=hist.map(id=>PRODUCTS.find(p=>p.id===id)).filter(Boolean);
+  $("histGrid").innerHTML = list.length ? list.map(card).join("") : `<div class="empty" style="grid-column:1/3"><span class="e">👀</span>逛逛商品,这里会记录浏览历史</div>`;
+}
+
+// ===== 选购指南 =====
+$("sizeGuide").innerHTML = SIZE_GUIDE.map(g=>`<div class="guide-row"><b>${g.bed}</b><span>${g.suit}<br><small style="color:var(--sub)">${g.note}</small></span></div>`).join("");
+$("weightGuide").innerHTML = WEIGHT_GUIDE.map(g=>`<div class="guide-row" style="cursor:pointer" onclick="openDetail('${g.ids[0]}')"><b>${g.temp}</b><span>${g.suit}<br><small style="color:var(--main)">查看推荐 ›</small></span></div>`).join("");
+
+updateBadge();
+</script>
+</body>
+</html>

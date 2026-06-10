@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>暖居家纺 · 后台管理</title>
+<script src="products.js"></script>
+<style>
+:root{--main:#a05c3b;--bg:#f5f2ee;--txt:#3a3026;--sub:#9a8c7d;--line:#e8e0d5;--red:#c0392b;--green:#2e7d32;--gold:#b8860b}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--txt)}
+.layout{display:flex;min-height:100vh}
+.side{width:180px;background:#2f261e;color:#cbbfae;flex:none;padding-top:10px}
+.side h1{font-size:16px;color:#fff;padding:14px 18px;border-bottom:1px solid #463a2e;margin-bottom:8px}
+.side h1 small{display:block;font-size:10px;color:#8d7f6c;font-weight:400;margin-top:3px}
+.side button{display:block;width:100%;text-align:left;background:none;border:none;color:#cbbfae;font-size:14px;padding:13px 18px;cursor:pointer}
+.side button.on{background:var(--main);color:#fff;font-weight:600}
+.main{flex:1;padding:20px;max-width:1000px}
+.view{display:none}.view.on{display:block}
+h2{font-size:18px;margin-bottom:14px}
+/* 概览卡 */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px}
+.stat{background:#fff;border-radius:12px;padding:16px}
+.stat b{font-size:24px;color:var(--main)}
+.stat span{display:block;font-size:12px;color:var(--sub);margin-top:4px}
+/* 表格 */
+table{width:100%;background:#fff;border-radius:12px;border-collapse:collapse;overflow:hidden;font-size:13px}
+th{background:#f0e9df;text-align:left;padding:10px 12px;font-size:12px;color:#6b5d4d}
+td{padding:10px 12px;border-top:1px solid var(--line);vertical-align:middle}
+.thumb{width:38px;height:38px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:18px;vertical-align:middle;margin-right:8px}
+.st{font-size:11px;border-radius:8px;padding:2px 8px;white-space:nowrap}
+.st-on{background:#e6f2e6;color:var(--green)} .st-off{background:#eee;color:#888}
+.st-draft{background:#fdf3dd;color:var(--gold)} .st-review{background:#e3ecf7;color:#1a5da6}
+.st-new{background:#fdeaea;color:var(--red)} .st-done{background:#e6f2e6;color:var(--green)} .st-doing{background:#e3ecf7;color:#1a5da6}
+.act{font-size:12px;color:var(--main);background:none;border:1px solid var(--main);border-radius:8px;padding:4px 10px;cursor:pointer;margin-right:6px}
+.act.gray{color:var(--sub);border-color:var(--line)}
+/* 表单 */
+.formcard{background:#fff;border-radius:12px;padding:20px;max-width:680px}
+.frow{display:grid;grid-template-columns:110px 1fr;gap:10px;align-items:start;margin-bottom:13px}
+.frow label{font-size:13px;font-weight:600;padding-top:9px}
+.frow label i{color:var(--red);font-style:normal}
+.frow input,.frow select,.frow textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 10px;font-size:13px;font-family:inherit}
+.frow textarea{height:64px;resize:vertical}
+.frow .hint{font-size:11px;color:var(--sub);margin-top:4px;line-height:1.5}
+.btn{background:var(--main);color:#fff;border:none;border-radius:10px;padding:11px 26px;font-size:14px;font-weight:600;cursor:pointer}
+.btn.line{background:#fff;color:var(--main);border:1px solid var(--main)}
+.flow{background:#fdf6ec;border-radius:10px;padding:12px 14px;font-size:12.5px;color:#7a6347;line-height:1.8;margin-bottom:16px}
+.ocard{background:#fff;border-radius:12px;padding:14px 16px;margin-bottom:10px;font-size:13px}
+.ohead{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.ohead b{font-size:13px}
+.oinfo{color:var(--sub);font-size:12px;line-height:1.7}
+.oitems{margin:6px 0;line-height:1.7}
+.note{color:var(--gold)}
+.empty{text-align:center;color:var(--sub);padding:50px 0;background:#fff;border-radius:12px}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:rgba(40,30,20,.88);color:#fff;font-size:13px;border-radius:10px;padding:10px 20px;z-index:99;display:none}
+@media(max-width:640px){.layout{flex-direction:column}.side{width:100%;display:flex;overflow-x:auto;padding:0}.side h1{display:none}.side button{white-space:nowrap;width:auto}}
+</style>
+</head>
+<body>
+<div class="layout">
+  <div class="side">
+    <h1>暖居家纺 · 后台<small>家人维护版(原型)</small></h1>
+    <button class="on" data-v="v-dash" onclick="go(this)">📊 经营概览</button>
+    <button data-v="v-products" onclick="go(this)">🛏️ 商品管理</button>
+    <button data-v="v-upload" onclick="go(this)">⬆️ 上传新商品</button>
+    <button data-v="v-orders" onclick="go(this)">📋 订单 / 留单</button>
+  </div>
+  <div class="main">
+
+    <!-- 概览 -->
+    <div class="view on" id="v-dash">
+      <h2>经营概览</h2>
+      <div class="stats" id="statGrid"></div>
+      <div class="flow"><b>这个后台给谁用?</b><br>
+      给家里负责商品的人。日常只需要三件事:① 新货到了 → 「上传新商品」按模板填;② 价格变了/缺货了 → 「商品管理」里改;③ 每天看一眼「订单/留单」,按电话微信联系客户。<br>
+      <b>审核流程:</b>家人上传 → 存为草稿 → 负责人(你)审核润色 → 发布上线。商品不会一传就出现在前台,保证风格统一。</div>
+      <h2 style="margin-top:8px">最新留单(待联系)</h2>
+      <div id="dashOrders"></div>
+    </div>
+
+    <!-- 商品管理 -->
+    <div class="view" id="v-products">
+      <h2>商品管理 <small style="font-size:12px;color:var(--sub);font-weight:400">改价、上下架立即生效(原型内模拟)</small></h2>
+      <table>
+        <thead><tr><th>商品</th><th>品类</th><th>起价</th><th>库存</th><th>状态</th><th>操作</th></tr></thead>
+        <tbody id="prodRows"></tbody>
+      </table>
+    </div>
+
+    <!-- 上传商品 -->
+    <div class="view" id="v-upload">
+      <h2>上传新商品</h2>
+      <div class="flow">📌 <b>按模板填,别随意写。</b>标题格式 = 支数/工艺 + 材质 + 品类,例:「60支长绒棉贡缎四件套」。卖点写客户能听懂的话,不要堆参数。提交后进入草稿,审核通过才会上架。正式版此处可由 AI 自动润色标题和卖点。</div>
+      <div class="formcard">
+        <div class="frow"><label>商品名 <i>*</i></label><div><input id="uName" placeholder="例:60支长绒棉贡缎四件套"><div class="hint">格式:支数/工艺 + 材质 + 品类</div></div></div>
+        <div class="frow"><label>品类 <i>*</i></label><select id="uCat"></select></div>
+        <div class="frow"><label>适用场景</label><div><input id="uScenes" placeholder="例:日常,乔迁,送礼(逗号分隔)"><div class="hint">可选:新婚 / 乔迁 / 冬被 / 夏凉 / 送礼 / 宿舍 / 日常 / 酒店风</div></div></div>
+        <div class="frow"><label>季节</label><select id="uSeason"><option>四季</option><option>春夏</option><option>秋冬</option></select></div>
+        <div class="frow"><label>材质 <i>*</i></label><input id="uMat" placeholder="例:100%长绒棉 60支贡缎"></div>
+        <div class="frow"><label>规格与价格 <i>*</i></label><div><textarea id="uSizes" placeholder="一行一个规格,格式:规格=价格&#10;1.5m床=399&#10;1.8m床=459"></textarea><div class="hint">被芯类请写清尺寸和斤数,如:1.5×2.0m(5斤)=299</div></div></div>
+        <div class="frow"><label>颜色/花型</label><input id="uColors" placeholder="例:雾霾蓝,奶咖,豆绿(逗号分隔)"></div>
+        <div class="frow"><label>卖点(1-3条)</label><textarea id="uPoints" placeholder="一行一条,写人话:&#10;长绒棉不起球&#10;贡缎有光泽,越睡越软"></textarea></div>
+        <div class="frow"><label>洗护说明</label><input id="uCare" placeholder="例:40°C以下机洗,深浅分开,阴干"></div>
+        <div class="frow"><label>退换承诺</label><input id="uPolicy" placeholder="例:7天无理由退换(未拆封水洗标)"></div>
+        <div class="frow"><label>图片</label><div><input type="file" multiple accept="image/*"><div class="hint">需要:主图 + 细节图 + 场景图 + 面料特写(原型不实际上传)</div></div></div>
+        <div style="display:flex;gap:10px;margin-top:6px;padding-left:120px">
+          <button class="btn" onclick="saveDraft(true)">提交审核</button>
+          <button class="btn line" onclick="saveDraft(false)">存为草稿</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 订单 -->
+    <div class="view" id="v-orders">
+      <h2>订单 / 留单记录 <small style="font-size:12px;color:var(--sub);font-weight:400">来自前台商城的提交(同一浏览器演示)</small></h2>
+      <div id="orderList"></div>
+    </div>
+
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const store={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const $=id=>document.getElementById(id);
+function toast(m){const t=$("toast");t.textContent=m;t.style.display="block";clearTimeout(t._t);t._t=setTimeout(()=>t.style.display="none",2000)}
+function go(btn){document.querySelectorAll(".side button").forEach(b=>b.classList.remove("on"));btn.classList.add("on");
+document.querySelectorAll(".view").forEach(v=>v.classList.remove("on"));$(btn.dataset.v).classList.add("on");}
+
+// 商品状态覆盖层:原型里 PRODUCTS 是只读文件,上下架/改价存在 localStorage
+let over = store.get("adminOverrides",{});   // {id:{off:true,price:xx}}
+let drafts = store.get("adminDrafts",[]);    // 家人上传的草稿
+
+// ===== 概览 =====
+function renderDash(){
+  const orders=store.get("orders",[]);
+  const pending=orders.filter(o=>!o.adminStatus||o.adminStatus==="待联系").length;
+  const onCount=PRODUCTS.filter(p=>!over[p.id]?.off).length;
+  $("statGrid").innerHTML=`
+    <div class="stat"><b>${orders.length}</b><span>累计订单/留单</span></div>
+    <div class="stat"><b>${pending}</b><span>待联系客户</span></div>
+    <div class="stat"><b>${onCount}/${PRODUCTS.length}</b><span>在售商品</span></div>
+    <div class="stat"><b>${drafts.length}</b><span>草稿/待审核</span></div>`;
+  const recent=orders.slice(0,3);
+  $("dashOrders").innerHTML=recent.length?recent.map(orderCard).join(""):`<div class="empty">暂无留单。打开前台 index.html 提交一单试试,这里会实时出现。</div>`;
+}
+
+// ===== 商品管理 =====
+function renderProducts(){
+  const draftRows=drafts.map((d,i)=>`<tr>
+    <td><span class="thumb" style="background:#eee">📦</span><b>${d.name}</b></td>
+    <td>${CATS[d.cat]||d.cat}</td><td>¥${d.minPrice||"-"}</td><td>-</td>
+    <td><span class="st ${d.review?'st-review':'st-draft'}">${d.review?"待审核":"草稿"}</span></td>
+    <td>${d.review?`<button class="act" onclick="approveDraft(${i})">通过并发布</button>`:""}<button class="act gray" onclick="delDraft(${i})">删除</button></td></tr>`).join("");
+  const rows=PRODUCTS.map(p=>{
+    const o=over[p.id]||{}; const off=o.off; const price=o.price||p.sizes[0].p;
+    return `<tr style="${off?'opacity:.55':''}">
+    <td><span class="thumb" style="background:linear-gradient(135deg,${p.img[0]},${p.img[1]})">${p.img[2]}</span><b>${p.name}</b></td>
+    <td>${CATS[p.cat]}</td>
+    <td>¥${price}${o.price?` <small style="color:var(--red)">已改</small>`:""}</td>
+    <td>${{in:"有货",low:"⚠️ 紧张",out:"缺货"}[p.stock]}</td>
+    <td><span class="st ${off?'st-off':'st-on'}">${off?"已下架":"在售"}</span></td>
+    <td><button class="act" onclick="editPrice('${p.id}')">改价</button>
+        <button class="act gray" onclick="toggleOff('${p.id}')">${off?"上架":"下架"}</button></td></tr>`;
+  }).join("");
+  $("prodRows").innerHTML=draftRows+rows;
+}
+function editPrice(id){
+  const p=PRODUCTS.find(x=>x.id===id);
+  const v=prompt(`「${p.name}」新的起价(当前 ¥${over[id]?.price||p.sizes[0].p}):`);
+  if(v===null)return; const n=Number(v);
+  if(!n||n<=0)return toast("请输入有效价格");
+  over[id]={...over[id],price:n}; store.set("adminOverrides",over); renderProducts(); toast("已改价(原型内模拟,正式版同步前台)");
+}
+function toggleOff(id){ over[id]={...over[id],off:!over[id]?.off}; store.set("adminOverrides",over); renderProducts(); renderDash(); toast("已更新上下架状态"); }
+
+// ===== 上传 =====
+const catSel=$("uCat"); catSel.innerHTML=Object.entries(CATS).map(([k,v])=>`<option value="${k}">${v}</option>`).join("");
+function saveDraft(review){
+  const name=$("uName").value.trim(), mat=$("uMat").value.trim(), sizesRaw=$("uSizes").value.trim();
+  if(!name)return toast("请填写商品名");
+  if(!mat)return toast("请填写材质");
+  if(!sizesRaw)return toast("请填写规格与价格");
+  const sizes=sizesRaw.split("\n").map(l=>l.split("=")).filter(a=>a.length===2&&Number(a[1])>0);
+  if(!sizes.length)return toast("规格格式不对,示例:1.5m床=399");
+  drafts.unshift({name,cat:catSel.value,mat,review:!!review,minPrice:Math.min(...sizes.map(a=>Number(a[1]))),
+    scenes:$("uScenes").value,season:$("uSeason").value,colors:$("uColors").value,points:$("uPoints").value,
+    care:$("uCare").value,policy:$("uPolicy").value,time:new Date().toLocaleString("zh-CN")});
+  store.set("adminDrafts",drafts);
+  ["uName","uMat","uSizes","uScenes","uColors","uPoints","uCare","uPolicy"].forEach(i=>$(i).value="");
+  toast(review?"✅ 已提交审核,负责人通过后上架":"✅ 已存为草稿");
+  renderProducts(); renderDash();
+}
+function approveDraft(i){ drafts.splice(i,1); store.set("adminDrafts",drafts); renderProducts(); renderDash(); toast("✅ 已发布(原型演示:正式版会进入前台商品库)"); }
+function delDraft(i){ if(confirm("确定删除该草稿?")){ drafts.splice(i,1); store.set("adminDrafts",drafts); renderProducts(); renderDash(); } }
+
+// ===== 订单 =====
+const ST_FLOW={"待联系":"st-new","跟进中":"st-doing","已成交":"st-done","已关闭":"st-off"};
+function orderCard(o,idx){
+  const st=o.adminStatus||"待联系";
+  const typeTxt={consult:"💬 留单咨询",transfer:"🤝 转账成交单",wxpay:"🟢 微信支付(模拟)"}[o.type];
+  return `<div class="ocard">
+    <div class="ohead"><b>${o.no} <span class="st ${ST_FLOW[st]}">${st}</span></b><span style="color:var(--sub);font-size:12px">${o.time} · ${typeTxt}</span></div>
+    <div class="oinfo">👤 ${o.name} · 📱 ${o.phone}${o.wx?` · 微信:${o.wx}`:""}${o.addr?`<br>📍 ${o.addr}`:""}</div>
+    <div class="oitems">${o.items.map(it=>`· ${it.name}(${it.spec} / ${it.color})×${it.qty} <span style="color:var(--sub)">¥${it.price*it.qty}</span>`).join("<br>")}</div>
+    ${o.note?`<div class="note">📝 客户备注:${o.note}</div>`:""}
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;border-top:1px dashed var(--line);padding-top:8px">
+      <span>合计 <b style="color:var(--red)">¥${o.total}</b></span>
+      <span>${idx!==undefined?["跟进中","已成交","已关闭"].map(s=>`<button class="act ${st===s?'':'gray'}" onclick="setOrderStatus(${idx},'${s}')">${s}</button>`).join(""):""}</span>
+    </div></div>`;
+}
+function renderOrders(){
+  const orders=store.get("orders",[]);
+  $("orderList").innerHTML=orders.length?orders.map((o,i)=>orderCard(o,i)).join(""):`<div class="empty">暂无订单。前台 index.html 提交后,这里会显示(需同一浏览器打开)。</div>`;
+}
+function setOrderStatus(i,s){ const orders=store.get("orders",[]); orders[i].adminStatus=s; store.set("orders",orders); renderOrders(); renderDash(); }
+
+renderDash(); renderProducts(); renderOrders();
+</script>
+</body>
+</html>
