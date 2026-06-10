@@ -116,6 +116,9 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;backgr
 .toast{position:fixed;top:45%;left:50%;transform:translate(-50%,-50%);background:rgba(40,30,20,.85);color:#fff;font-size:13px;border-radius:10px;padding:10px 18px;z-index:99;display:none;text-align:center;line-height:1.6}
 .guide-row{display:flex;background:#fff;border-radius:12px;margin:0 16px 8px;padding:12px;font-size:12.5px;gap:10px}
 .guide-row b{flex:none;width:108px;color:var(--main-dark)}
+input.search{outline:none;color:var(--txt)}
+input.search::placeholder{color:var(--sub)}
+.copybtn{font-size:12px;color:var(--main);border:1px solid var(--main);background:#fff;border-radius:10px;padding:5px 12px;cursor:pointer}
 .guide-row span{color:#6b5d4d;line-height:1.5}
 .mine-menu{background:#fff;border-radius:14px;margin:10px 16px}
 .mine-menu div{display:flex;justify-content:space-between;padding:14px;font-size:14px;border-bottom:1px solid var(--line);cursor:pointer}
@@ -132,7 +135,7 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;backgr
     <div class="brand">暖居家纺<small>30年老店 · 工厂直供</small></div>
   </div>
   <div class="topbar" style="padding-top:0">
-    <div class="search" onclick="goCat('all')">🔍 搜索:四件套 / 被芯 / 婚庆…</div>
+    <input class="search" id="searchBox" placeholder="🔍 搜索:四件套 / 大豆被 / 婚庆…" onkeydown="if(event.key==='Enter'){goSearch(this.value);this.blur()}">
   </div>
   <div class="banner" onclick="goScene('新婚')">
     <h2>婚庆季 · 一生一次要够隆重</h2>
@@ -148,7 +151,7 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;backgr
 <!-- ========== 分类/列表页 ========== -->
 <div class="page" id="pg-cat">
   <div class="topbar">
-    <button class="back" onclick="show('pg-home')">‹</button>
+    <button class="back" onclick="history.back()">‹</button>
     <div class="brand" style="font-size:16px" id="catTitle">全部商品</div>
   </div>
   <div class="chips" id="catChips"></div>
@@ -173,7 +176,7 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;backgr
 <!-- ========== 结算/留单 ========== -->
 <div class="page" id="pg-checkout">
   <div class="topbar">
-    <button class="back" onclick="show('pg-cart')">‹</button>
+    <button class="back" onclick="history.back()">‹</button>
     <div class="brand" style="font-size:17px" id="ckTitle">提交订单</div>
   </div>
   <div id="ckItems"></div>
@@ -206,12 +209,13 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;backgr
 <!-- ========== 我的 ========== -->
 <div class="page" id="pg-mine">
   <div class="topbar"><div class="brand" style="font-size:17px">我的</div></div>
-  <div class="wx-tip">💚 老客服务:加店主微信,上新提醒 + 会员价 + 旧客换新折扣。<b>微信号:nuanju-jiafang(示例)</b></div>
+  <div class="wx-tip">💚 老客服务:加店主微信,上新提醒 + 会员价 + 旧客换新折扣。<b>微信号:nuanju-jiafang(示例)</b>
+    <button class="copybtn" style="margin-left:8px" onclick="copyText(SHOP_WX,'微信号已复制,去微信添加店主')">复制微信号</button></div>
   <div class="mine-menu">
     <div onclick="renderOrders();show('pg-orders')">我的订单 / 留单记录</div>
     <div onclick="renderFavs();show('pg-favs')">我的收藏</div>
     <div onclick="show('pg-guide')">买多大?买几斤?(选购指南)</div>
-    <div onclick="toast('原型演示:正式版可一键拨号 13800000000')">联系店主</div>
+    <div onclick="copyText(SHOP_WX,'微信号已复制,去微信添加店主')">联系店主(复制微信号)</div>
   </div>
   <div class="sec-title">最近浏览</div>
   <div class="grid" id="histGrid"></div>
@@ -219,19 +223,19 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;backgr
 
 <!-- 订单列表 -->
 <div class="page" id="pg-orders">
-  <div class="topbar"><button class="back" onclick="show('pg-mine')">‹</button><div class="brand" style="font-size:17px">订单 / 留单</div></div>
+  <div class="topbar"><button class="back" onclick="history.back()">‹</button><div class="brand" style="font-size:17px">订单 / 留单</div></div>
   <div id="orderBody"></div>
 </div>
 
 <!-- 收藏 -->
 <div class="page" id="pg-favs">
-  <div class="topbar"><button class="back" onclick="show('pg-mine')">‹</button><div class="brand" style="font-size:17px">我的收藏</div></div>
+  <div class="topbar"><button class="back" onclick="history.back()">‹</button><div class="brand" style="font-size:17px">我的收藏</div></div>
   <div class="grid" id="favGrid"></div>
 </div>
 
 <!-- 选购指南 -->
 <div class="page" id="pg-guide">
-  <div class="topbar"><button class="back" onclick="show('pg-mine')">‹</button><div class="brand" style="font-size:17px">选购指南</div></div>
+  <div class="topbar"><button class="back" onclick="history.back()">‹</button><div class="brand" style="font-size:17px">选购指南</div></div>
   <div class="sec-title">买多大 · 按床型选</div>
   <div id="sizeGuide"></div>
   <div class="sec-title">被子买几斤 · 按卧室温度选</div>
@@ -241,10 +245,10 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;backgr
 
 <!-- 底部导航 -->
 <div class="nav">
-  <button class="on" data-pg="pg-home" onclick="nav(this)"><i>🏠</i>首页</button>
-  <button data-pg="pg-cat" onclick="nav(this);goCat(curCat||'all')"><i>🗂️</i>分类</button>
-  <button data-pg="pg-cart" onclick="nav(this);renderCart()"><i>🛒</i>购物车<span class="badge" id="cartBadge" style="display:none">0</span></button>
-  <button data-pg="pg-mine" onclick="nav(this);renderHist()"><i>👤</i>我的</button>
+  <button class="on" data-pg="pg-home" onclick="show('pg-home')"><i>🏠</i>首页</button>
+  <button data-pg="pg-cat" onclick="goCat(curCat||'all')"><i>🗂️</i>分类</button>
+  <button data-pg="pg-cart" onclick="renderCart();show('pg-cart')"><i>🛒</i>购物车<span class="badge" id="cartBadge" style="display:none">0</span></button>
+  <button data-pg="pg-mine" onclick="renderHist();show('pg-mine')"><i>👤</i>我的</button>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -258,13 +262,26 @@ const store = {
 let cart = store.get("cart",[]);
 let favs = store.get("favs",[]);
 let hist = store.get("hist",[]);
-let curCat = "all", curScene = "", curProduct = null, selSize = 0, selColor = 0, payMode = "consult", ckMode = "cart";
+let curCat = "all", curScene = "", curKw = "", curProduct = null, selSize = 0, selColor = 0, payMode = "consult", ckMode = "cart";
+const SHOP_WX = "nuanju-jiafang"; // 店主微信号(上线前改成真实的)
 
 const $ = id => document.getElementById(id);
 const fmt = n => "¥" + n;
 
-function show(id){ document.querySelectorAll(".page").forEach(p=>p.classList.remove("on")); $(id).classList.add("on"); window.scrollTo(0,0); }
-function nav(btn){ document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("on")); btn.classList.add("on"); show(btn.dataset.pg); }
+function render(id){ document.querySelectorAll(".page").forEach(p=>p.classList.remove("on")); $(id).classList.add("on"); window.scrollTo(0,0); syncNav(id); }
+function syncNav(id){ const map={"pg-home":"pg-home","pg-cat":"pg-cat","pg-cart":"pg-cart","pg-mine":"pg-mine","pg-orders":"pg-mine","pg-favs":"pg-mine","pg-guide":"pg-mine"};
+  const tgt=map[id]; if(tgt) document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("on",b.dataset.pg===tgt)); }
+// 用浏览器历史接管页面切换:微信里按返回键回上一页,而不是退出网页
+function show(id){ render(id); if(("#"+id)!==location.hash){ try{ history.pushState({pg:id},"","#"+id); }catch(e){} } }
+window.addEventListener("popstate", e=>{ const id=(e.state&&e.state.pg)||((location.hash||"#pg-home").slice(1));
+  const el=document.getElementById(id); if(el&&el.classList.contains("page")) render(id); });
+try{ history.replaceState({pg:"pg-home"},"","#pg-home"); }catch(e){}
+// 复制工具(兼容微信内置浏览器)
+function copyText(t,msg){ const done=()=>toast(msg||"已复制");
+  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(done).catch(()=>fallbackCopy(t,done)); }
+  else fallbackCopy(t,done); }
+function fallbackCopy(t,done){ const ta=document.createElement("textarea"); ta.value=t; ta.style.cssText="position:fixed;opacity:0";
+  document.body.appendChild(ta); ta.select(); try{ document.execCommand("copy"); done(); }catch(e){ toast("复制失败,请长按手动复制"); } document.body.removeChild(ta); }
 function toast(msg){ const t=$("toast"); t.innerHTML=msg; t.style.display="block"; clearTimeout(t._t); t._t=setTimeout(()=>t.style.display="none",1800); }
 
 // ===== 商品卡 =====
@@ -287,11 +304,13 @@ $("hotGrid").innerHTML = PRODUCTS.filter(p=>p.tag==="hot").slice(0,6).map(card).
 $("fScene").innerHTML += SCENES.map(s=>`<option>${s.key}</option>`).join("");
 
 // ===== 分类列表 =====
-function goCat(cat){ curCat=cat; curScene=""; $("fScene").value="";
-  document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("on",b.dataset.pg==="pg-cat"));
+function goCat(cat){ curCat=cat; curScene=""; curKw=""; $("fScene").value="";
   renderChips(); renderList(); show("pg-cat"); }
-function goScene(scene){ curCat="all"; curScene=scene;
+function goScene(scene){ curCat="all"; curScene=scene; curKw="";
   renderChips(); $("fScene").value=scene; renderList(); show("pg-cat"); }
+function goSearch(kw){ curKw=(kw||"").trim(); curCat="all"; curScene=""; $("fScene").value="";
+  renderChips(); renderList(); show("pg-cat");
+  if(curKw) $("catTitle").textContent="搜索:"+curKw; }
 function renderChips(){
   const cats=[["all","全部"],...Object.entries(CATS)];
   $("catChips").innerHTML = cats.map(([k,v])=>`<div class="chip ${curCat===k?'on':''}" onclick="goCat('${k}')">${v}</div>`).join("");
@@ -301,6 +320,7 @@ function renderList(){
   const size=$("fSize").value, season=$("fSeason").value, price=$("fPrice").value, scene=$("fScene").value;
   let list = PRODUCTS.filter(p=>{
     if(curCat!=="all" && p.cat!==curCat) return false;
+    if(curKw && !((p.name+p.material+p.scenes.join(",")+CATS[p.cat]).includes(curKw))) return false;
     if(scene && !p.scenes.includes(scene)) return false;
     if(season && p.season!==season && p.season!=="四季") return false;
     if(size && !p.sizes.some(s=>s.s.includes(size))) return false;
@@ -320,7 +340,7 @@ function openDetail(id){
 function renderDetail(){
   const p=curProduct, sz=p.sizes[selSize], isFav=favs.includes(p.id);
   $("pg-detail").innerHTML = `
-  <div class="topbar" style="position:absolute;background:none"><button class="back" style="background:rgba(255,255,255,.8);border-radius:50%;width:34px;height:34px" onclick="show('pg-cat')">‹</button></div>
+  <div class="topbar" style="position:absolute;background:none"><button class="back" style="background:rgba(255,255,255,.8);border-radius:50%;width:34px;height:34px" onclick="history.back()">‹</button></div>
   <div class="dimg" style="background:linear-gradient(135deg,${p.img[0]},${p.img[1]})">${p.img[2]}</div>
   <div class="dbody">
     <div class="dprice"><b>${fmt(sz.p)}</b><span class="mprice">会员价 ${fmt(sz.mp)}</span>${p.stock==="low"?'<span style="font-size:12px;color:var(--red)">仅剩少量</span>':''}</div>
@@ -338,7 +358,7 @@ function renderDetail(){
   </div>
   <div class="dbar">
     <button class="icbtn" onclick="toggleFav()"><i>${isFav?"❤️":"🤍"}</i>收藏</button>
-    <button class="icbtn" onclick="nav(document.querySelector('[data-pg=pg-cart]'));renderCart()"><i>🛒</i>购物车</button>
+    <button class="icbtn" onclick="renderCart();show('pg-cart')"><i>🛒</i>购物车</button>
     <button class="btn btn-ghost" onclick="goConsult()">留单咨询</button>
     <button class="btn btn-main" onclick="addCart()">加入购物车</button>
   </div>`;
@@ -356,7 +376,7 @@ function updateBadge(){ const n=cart.reduce((s,c)=>s+c.qty,0); const b=$("cartBa
 
 // ===== 购物车 =====
 function renderCart(){
-  if(!cart.length){ $("cartBody").innerHTML=`<div class="empty"><span class="e">🛒</span>购物车还是空的<br><br><button class="btn btn-main" style="padding:10px 30px" onclick="nav(document.querySelector('[data-pg=pg-cat]'));goCat('all')">去逛逛</button></div>`; return; }
+  if(!cart.length){ $("cartBody").innerHTML=`<div class="empty"><span class="e">🛒</span>购物车还是空的<br><br><button class="btn btn-main" style="padding:10px 30px" onclick="goCat('all')">去逛逛</button></div>`; return; }
   let total=0;
   $("cartBody").innerHTML = cart.map((c,i)=>{
     const p=PRODUCTS.find(x=>x.id===c.id), sz=p.sizes[c.size];
@@ -410,18 +430,28 @@ function submitOrder(){
   if(ckMode!=="single"){ cart=[]; store.set("cart",cart); updateBadge(); }
   ["ckName","ckPhone","ckWx","ckAddr","ckNote"].forEach(id=>$(id).value="");
   if(payMode==="wxpay") toast("✅ 模拟支付成功<br>订单号 "+order.no+"<br>正式版将拉起微信支付");
-  else toast("✅ 已提交,店主会尽快联系您<br>订单号 "+order.no);
+  else toast("✅ 已提交!订单号 "+order.no+"<br>建议在订单页点「复制订单发给店主」<br>微信发店主,响应最快");
   setTimeout(()=>{ renderOrders(); show("pg-orders"); },1500);
 }
 
 // ===== 订单 / 收藏 / 浏览 =====
+function orderText(o){
+  return ["【暖居家纺 订单】"+o.no,
+    "称呼:"+o.name+"  电话:"+o.phone+(o.wx?"  微信:"+o.wx:""),
+    o.addr?"地址:"+o.addr:"",
+    ...o.items.map(it=>"· "+it.name+" / "+it.spec+" / "+it.color+" ×"+it.qty+" ¥"+(it.price*it.qty)),
+    o.note?"备注:"+o.note:"",
+    "合计:¥"+o.total].filter(Boolean).join("\n");
+}
+function copyOrder(i){ const o=store.get("orders",[])[i]; if(o) copyText(orderText(o),"订单已复制<br>去微信粘贴发给店主即可"); }
 function renderOrders(){
   const orders=store.get("orders",[]);
-  $("orderBody").innerHTML = orders.length ? orders.map(o=>`<div class="ocard">
+  $("orderBody").innerHTML = orders.length ? orders.map((o,i)=>`<div class="ocard">
     <div class="ohead"><span>${o.no} · ${o.time}</span><span class="ostatus">${o.status}</span></div>
     ${o.items.map(it=>`<div class="oitem">${it.name}<span style="color:var(--sub)"> · ${it.spec} · ${it.color} ×${it.qty}</span></div>`).join("")}
     ${o.note?`<div class="oitem" style="color:var(--gold)">备注:${o.note}</div>`:""}
     <div class="ofoot"><span style="color:var(--sub)">${{consult:"留单咨询",transfer:"微信转账成交",wxpay:"微信支付"}[o.type]}</span><span>合计 <b style="color:var(--red)">${fmt(o.total)}</b></span></div>
+    <div style="margin-top:8px;text-align:right"><button class="copybtn" onclick="copyOrder(${i})">📋 复制订单发给店主</button></div>
   </div>`).join("") : `<div class="empty"><span class="e">📋</span>还没有订单或留单记录</div>`;
 }
 function renderFavs(){
